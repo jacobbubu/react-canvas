@@ -27,6 +27,12 @@ var Page = React.createClass({
     scrollTop: React.PropTypes.number.isRequired
   },
 
+  getInitialState: function () {
+    return {
+      fadeInDone: false
+    }
+  },
+
   componentWillMount: function () {
     // Pre-compute headline/excerpt text dimensions.
     var article = this.props.article;
@@ -35,6 +41,14 @@ var Page = React.createClass({
     var excerptStyle = this.getExcerptStyle();
     this.titleMetrics = measureText(article.title, maxWidth, titleStyle.fontFace, titleStyle.fontSize, titleStyle.lineHeight);
     this.excerptMetrics = measureText(article.excerpt, maxWidth, excerptStyle.fontFace, excerptStyle.fontSize, excerptStyle.lineHeight);
+  },
+
+  onImageLoaded: function (src) {
+    console.log('Image loaded', src);
+  },
+
+  onFadeInDone: function (src) {
+    this.setState({ fadeInDone: true })
   },
 
   render: function () {
@@ -50,7 +64,9 @@ var Page = React.createClass({
 
     return (
       <Group style={groupStyle}>
-        <Image style={imageStyle} src={this.props.article.imageUrl} fadeIn={true} useBackingStore={true} />
+        <Group style={imageStyle} useBackingStore={this.state.fadeInDone}>
+          <Image style={imageStyle} src={this.props.article.imageUrl} fadeIn={true} useBackingStore={false} onLoaded={this.onImageLoaded} onFadeInDone={this.onFadeInDone}/>
+        </Group>
         <Group style={this.getTextGroupStyle()} useBackingStore={true}>
           <Text style={titleStyle}>{this.props.article.title}</Text>
           <Text style={excerptStyle}>{this.props.article.excerpt}</Text>
